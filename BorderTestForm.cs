@@ -100,8 +100,8 @@ namespace CityBorderTest
             BorderBases = new ArrayList();
             BorderOwners = new ArrayList();
             // testing
-            BorderBases.Add(new GridBase(9,10,185,205,0));
-            BorderBases.Add(new GridBase(17,8,345,165,1));
+ //           BorderBases.Add(new GridBase(9,10,185,205,0));
+//            BorderBases.Add(new GridBase(17,8,345,165,1));
 
             BorderEdges = new ArrayList();
             city1EdgeCount = 0;
@@ -124,7 +124,7 @@ namespace CityBorderTest
             m_buffer = new Bitmap(m_panelXSize, m_panelYSize, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             m_borderBuffer = new Bitmap(m_panelXSize/20, m_panelYSize/20, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             m_borderBufferC2 = new Bitmap(m_panelXSize / 20, m_panelYSize / 20, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            is_add_owner = false;
+            is_add_owner = false;            
             // grid values, from pixel to coord in jagged array
             m_gridValues = new int[m_panelXSize/20][];
             m_gridValuesC2 = new int[m_panelXSize / 20][];
@@ -159,11 +159,8 @@ namespace CityBorderTest
             Graphics g = Graphics.FromImage(m_buffer);
             Graphics pg = Graphics.FromImage(m_borderBuffer);
             Graphics pgc2 = Graphics.FromImage(m_borderBufferC2);
-            // Clear the panels
-            if (is_add_owner)
-            {
-                
-            }
+            cbAddingOwner.Checked = is_add_owner;
+            // Clear the panels            
             Brush panelBrush = new SolidBrush(Color.Black);
             g.FillRectangle(panelBrush, 0, 0, m_panelXSize, m_panelYSize);
             panelBrush.Dispose();
@@ -311,7 +308,7 @@ namespace CityBorderTest
                     if (m_gridValues[x][y] == m_gridValuesC2[x][y] &&
                         m_gridValues[x][y] != 0)
                     {
-                        m_gridValues[x][y]++;
+                        m_gridValuesC2[x][y]--;
                     }
                     int bstrength = m_gridValues[x][y];
                     int b2strength = m_gridValuesC2[x][y];
@@ -326,7 +323,7 @@ namespace CityBorderTest
                             g.DrawString(bstrength.ToString(), borderfont, borderbrush, x * 20 + 5, y * 20 + 5, StringFormat.GenericDefault);
                         }
                     }
-                    if (b2strength > 0 && show_city == 2)
+                    if (b2strength > 0 && show_city == 2) 
                     {
                         if (b2strength > 99)
                         {
@@ -341,8 +338,6 @@ namespace CityBorderTest
                     {
                         if (bstrength > b2strength)
                         {
-                            //                  m_gridOwner[x][y] = 1;
-
                             if (bstrength > 0)
                             {
                                 if (bstrength > 99)
@@ -354,24 +349,18 @@ namespace CityBorderTest
                                     g.DrawString(bstrength.ToString(), borderfont, borderbrush, x * 20 + 5, y * 20 + 5, StringFormat.GenericDefault);
                                 }
                             }
-
-
                         }
                         else 
                         {
-                            //                    m_gridOwner[x][y] = 2;
-                            if (!show_ownership)
+                            if (b2strength > 0)
                             {
-                                if (b2strength > 0)
+                                if (b2strength > 99)
                                 {
-                                    if (b2strength > 99)
-                                    {
-                                        g.DrawString(b2strength.ToString(), borderfont, borderbrushc2, x * 20 + 2, y * 20 + 5, StringFormat.GenericDefault);
-                                    }
-                                    else
-                                    {
-                                        g.DrawString(b2strength.ToString(), borderfont, borderbrushc2, x * 20 + 5, y * 20 + 5, StringFormat.GenericDefault);
-                                    }
+                                    g.DrawString(b2strength.ToString(), borderfont, borderbrushc2, x * 20 + 2, y * 20 + 5, StringFormat.GenericDefault);
+                                }
+                                else
+                                {
+                                    g.DrawString(b2strength.ToString(), borderfont, borderbrushc2, x * 20 + 5, y * 20 + 5, StringFormat.GenericDefault);
                                 }
                             }
                         }
@@ -398,8 +387,24 @@ namespace CityBorderTest
                         m_gridValuesC2[x][y] = m_borderBufferC2.GetPixel(x, y).R;
                         if (m_gridValues[x][y] == m_gridValuesC2[x][y] && m_gridValues[x][y] != 0)
                         {
-                            m_gridValues[x][y]++;
+                            m_gridValuesC2[x][y]--;
                         }
+                    }
+                }
+            }
+            if (BorderOwners.Count > 0)
+            {
+                foreach (GridBase gb in BorderOwners)
+                {
+                    if (gb.cityflag == 0)
+                    {
+                        m_borderBuffer.SetPixel(gb.x, gb.y, Color.FromArgb(255, 254, 254, 254));
+                        m_gridValues[gb.x][gb.y] = 254;
+                    }
+                    else
+                    {
+                        m_borderBufferC2.SetPixel(gb.x,gb.y, Color.FromArgb(255,254,254,254));
+                        m_gridValuesC2[gb.x][gb.y] = 254;                        
                     }
                 }
             }
@@ -424,12 +429,9 @@ namespace CityBorderTest
                         {
                             g.FillEllipse(city1, x * 20 + 6, y * 20 + 6, 10, 10);
                         }
-                        else
+                        else if (m_gridOwner[x][y] == 2 && (show_city == 2 || show_city == 0))
                         {
-                            if (show_city == 2 || show_city == 0)
-                            {
-                                g.FillEllipse(city2, x * 20 + 6, y * 20 + 6, 10, 10);
-                            }
+                            g.FillEllipse(city2, x * 20 + 6, y * 20 + 6, 10, 10);
                         }
                     }
                 }
@@ -447,8 +449,6 @@ namespace CityBorderTest
             city1EdgeCount = 0;
             city2EdgeCount = 0;
             bool isEdge = false;
-            int gx = 0;
-            int gy = 0;
             for (int x = 0; x < m_panelXSize / 20; x++)
             {
                 for (int y = 0; y < m_panelYSize / 20; y++)
@@ -772,22 +772,16 @@ namespace CityBorderTest
             else if (e.KeyCode == Keys.O)
             {
                 show_ownership = !show_ownership;
-                show_strengths = false;
-                show_edges = false;
                 RenderPanel();
             }
             else if (e.KeyCode == Keys.E)
             {
-                show_ownership = false;
-                show_strengths = false;
                 show_edges = !show_edges;
                 RenderPanel();
             }
             else if (e.KeyCode == Keys.S)
             {
                 show_strengths = !show_strengths;
-                show_ownership = false;
-                show_edges = false;
                 RenderPanel();
             }
             else if (e.KeyCode == Keys.D1)
@@ -859,6 +853,7 @@ namespace CityBorderTest
                         BorderOwners.Add(newowner);
                         m_gridOwner[m_mouseGridXLoc][m_mouseGridYLoc] = Convert.ToByte(cityselected + 1);
                     }
+                    RenderPanel();
                 }
             }
         }        
@@ -871,6 +866,18 @@ namespace CityBorderTest
         private void btnAddOwner_Click(object sender, EventArgs e)
         {
             is_add_owner = !is_add_owner;
+            cbAddingOwner.Invalidate();
+            RenderPanel();
+        }        
+
+        private void cbAddingOwner_KeyDown(object sender, KeyEventArgs e)
+        {
+            BorderTestForm_KeyDown(sender, e);
+        }
+
+        private void btnAddOwner_KeyDown(object sender, KeyEventArgs e)
+        {
+            BorderTestForm_KeyDown(sender, e);            
         }
         #endregion
     }
