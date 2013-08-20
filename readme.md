@@ -6,6 +6,7 @@ Commands:
 * "S" Show strengths
 * "O" Show Ownership
 * "B" Show Borders
+* "E" Show Border Edges
 * "1" Show data for only City 1
 * "2" Show data for only City 2
-* "0" SHow data for both Cities
+* "0" Show data for both Cities
